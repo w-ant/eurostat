@@ -1,13 +1,17 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import sqlite3
 import pandas as pd
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/')
 def home():
     return '<h1>Eurostat</h1>'
+
+
 @app.route('/countries')
 def list_of_countries():
     db = sqlite3.connect('data.db')
@@ -18,7 +22,7 @@ def list_of_countries():
     return jsonify(result)
 
 
-@app.route('/data/<country_code>/<trade_type>')
+@app.route('/data/<country_code>/<trade_type>', methods=["GET", "OPTIONS"])
 def country(country_code, trade_type):
 
     db = sqlite3.connect('data.db')
@@ -34,7 +38,7 @@ def country(country_code, trade_type):
     df['YOY'] = value.pct_change(12)*100
 
     db.close()
-    retJson = df.to_json(orient='records')
+    retJson = df.to_json()
     return retJson
 
 
