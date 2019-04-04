@@ -1,21 +1,15 @@
-function createRadio(element) {
-  return document.createElement(element);
-}
-function append(parent, el) {
-  return parent.appendChild(el);
-}
-const form = document.getElementById("cform");
+const form = document.getElementById("cbtns");
 const countriesUrl = "http://0.0.0.0:5000/countries";
 fetch(countriesUrl)
   .then(resp => resp.json())
-  .then(function(data) {
+  .then(function (data) {
     return data.map(countryCode => {
       let btn = document.createElement("button");
       btn.value = countryCode;
       btn.innerText = countryCode;
       btn.addEventListener(
         "click",
-        function(e) {
+        function (e) {
           getChartData(countryCode, "e");
           e.preventDefault();
         },
@@ -24,7 +18,7 @@ fetch(countriesUrl)
       form.appendChild(btn);
     });
   })
-  .catch(function(error) {});
+  .catch(function (error) {});
 
 function renderChart(data, labels) {
   var ctx = document.getElementById("myChart").getContext("2d");
@@ -32,8 +26,7 @@ function renderChart(data, labels) {
     type: "line",
     data: {
       labels: labels,
-      datasets: [
-        {
+      datasets: [{
           label: "Total in Euro",
           data: data[0],
           borderColor: "rgba(75,192,192,1)",
@@ -49,15 +42,13 @@ function renderChart(data, labels) {
     },
     options: {
       scales: {
-        yAxes: [
-          {
-            ticks: {
-              beginAtZero: true
-            }
+        yAxes: [{
+          ticks: {
+            beginAtZero: true
           }
-        ]
+        }]
       },
-      events: ["mousemove"]
+      events: []
     }
   });
 }
@@ -66,7 +57,7 @@ function getChartData(cc, tt) {
   $("#loadingMessage").html("Loading");
   $.ajax({
     url: `http://localhost:5000/data/${cc}/${tt}`,
-    success: function(result) {
+    success: function (result) {
       $("#loadingMessage").html("");
       var data = [];
       var json = JSON.parse(result);
@@ -76,13 +67,10 @@ function getChartData(cc, tt) {
 
       renderChart(data, labels);
     },
-    error: function(err) {
+    error: function (err) {
       console.log("error");
 
       $("#loadingMessage").html("Error");
     }
   });
 }
-$("#renderBtn").click(function() {
-  getChartData("de", "e");
-});
