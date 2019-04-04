@@ -1,13 +1,34 @@
-const form = document.getElementById("cbtns");
-const countriesUrl = "http://0.0.0.0:5000/countries";
+const cbtns = document.getElementById("cbtns"),
+  ul = document.createElement('ul'),
+  countriesUrl = "http://0.0.0.0:5000/countries";
+cbtns.appendChild(ul);
 fetch(countriesUrl)
   .then(resp => resp.json())
   .then(function (data) {
     return data.map(countryCode => {
-      let btn = document.createElement("button");
-      btn.value = countryCode;
-      btn.innerText = countryCode;
-      btn.addEventListener(
+      let li = document.createElement('li')
+      let label = document.createElement('span')
+      let btnI = document.createElement("button");
+      let btnE = document.createElement("button");
+      btnI.value = countryCode;
+      btnI.innerText = "Import";
+      btnE.value = countryCode;
+      btnE.innerText = "Export";
+      label.innerText = countryCode;
+      li.appendChild(label)
+      li.appendChild(btnI)
+      li.appendChild(btnE)
+      ul.appendChild(li);
+
+      btnI.addEventListener(
+        "click",
+        function (e) {
+          getChartData(countryCode, "i");
+          e.preventDefault();
+        },
+        false
+      );
+      btnE.addEventListener(
         "click",
         function (e) {
           getChartData(countryCode, "e");
@@ -15,7 +36,6 @@ fetch(countriesUrl)
         },
         false
       );
-      form.appendChild(btn);
     });
   })
   .catch(function (error) {});
@@ -44,6 +64,14 @@ var myChart = new Chart(ctx, {
   },
   options: {
     scales: {
+      // xAxes: [{
+      //   type: 'time',
+      //   time: {
+      //     displayFormats: {
+      //       month: 'MM YYYY'
+      //     }
+      //   }
+      // }],
       yAxes: [{
         ticks: {
           beginAtZero: true
@@ -63,6 +91,7 @@ function updateChart(data, labels) {
 
 function getChartData(cc, tt) {
   $("#loadingMessage").html("Loading");
+  console.log(`Country code: ${cc}, Trade type: ${tt}`);
   $.ajax({
     url: `http://localhost:5000/data/${cc}/${tt}`,
     success: function (result) {
