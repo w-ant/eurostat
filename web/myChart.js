@@ -20,37 +20,45 @@ fetch(countriesUrl)
   })
   .catch(function (error) {});
 
-function renderChart(data, labels) {
-  var ctx = document.getElementById("myChart").getContext("2d");
-  var myChart = new Chart(ctx, {
-    type: "line",
-    data: {
-      labels: labels,
-      datasets: [{
-          label: "Total in Euro",
-          data: data[0],
-          borderColor: "rgba(75,192,192,1)",
-          backgroundColor: "rgba(75,192,192,0.2)"
-        },
-        {
-          label: "MA12",
-          data: data[1],
-          borderColor: "rgba(192, 92, 92, 1)",
-          backgroundColor: "rgba(92, 92, 92, 0)"
-        }
-      ]
-    },
-    options: {
-      scales: {
-        yAxes: [{
-          ticks: {
-            beginAtZero: true
-          }
-        }]
+var ctx = document.getElementById("myChart").getContext("2d");
+var myChart = new Chart(ctx, {
+  type: "bar",
+  data: {
+    labels: 0,
+    datasets: [{
+        label: "Total in Euro",
+        // data: data[0],
+        borderColor: "rgba(75,130,180,1)",
+        backgroundColor: "rgba(75,130,180,0.6)",
+        // borderWidth: 1
       },
-      events: []
+      {
+        label: "MA12",
+        // data: data[1],
+        borderColor: "rgba(192, 92, 92, 1)",
+        backgroundColor: "rgba(192, 92, 92, 0.1)",
+        type: 'line',
+        radius: 0
+      }
+    ]
+  },
+  options: {
+    scales: {
+      yAxes: [{
+        ticks: {
+          beginAtZero: true
+        }
+      }]
     }
-  });
+  }
+});
+
+function updateChart(data, labels) {
+  myChart.data.datasets[0].data = data[0];
+  myChart.data.datasets[1].data = data[1];
+
+  myChart.data.labels = labels;
+  myChart.update()
 }
 
 function getChartData(cc, tt) {
@@ -65,7 +73,7 @@ function getChartData(cc, tt) {
       data.push(Object.values(json.MA12));
       var labels = Object.values(json.PERIOD);
 
-      renderChart(data, labels);
+      updateChart(data, labels);
     },
     error: function (err) {
       console.log("error");
