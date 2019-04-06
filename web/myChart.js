@@ -44,12 +44,12 @@ var ctx = document.getElementById("myChart").getContext("2d");
 var myChart = new Chart(ctx, {
   type: "bar",
   data: {
-    labels: 0,
+    labels: new Date(),
     datasets: [{
-        label: "Total in Euro",
+        label: "Total in billion EUR",
         // data: data[0],
         borderColor: "rgba(75,130,180,1)",
-        backgroundColor: "rgba(75,130,180,0.6)",
+        backgroundColor: "rgba(75,130,180,.8)",
         // borderWidth: 1
       },
       {
@@ -59,31 +59,70 @@ var myChart = new Chart(ctx, {
         backgroundColor: "rgba(192, 92, 92, 0.1)",
         type: 'line',
         radius: 0
+      },
+      {
+        label: "MOM",
+        yAxisID: 'B',
+        borderColor: "rgba(0,255,0,1)",
+        backgroundColor: "rgba(0,255,0,1)",
+        // borderWidth: 1
+      },
+      {
+        label: "YOY",
+        yAxisID: 'B',
+        borderColor: "rgba(135,130,80,1)",
+        backgroundColor: "rgba(135,130,80,.8)",
+        // borderWidth: 1
       }
     ]
   },
   options: {
     scales: {
-      // xAxes: [{
-      //   type: 'time',
-      //   time: {
-      //     displayFormats: {
-      //       month: 'MM YYYY'
-      //     }
-      //   }
-      // }],
+      xAxes: [{
+        type: 'time',
+        time: {
+          displayFormats: {
+            month: 'YYYY'
+          }
+        }
+      }],
       yAxes: [{
+        id: 'A',
+        position: 'left',
+        ticks: {
+          beginAtZero: true
+        }
+      }, {
+        id: 'B',
+        position: 'right',
         ticks: {
           beginAtZero: true
         }
       }]
+    },
+    tooltips: {
+      mode: 'index',
+      callbacks: {
+        label: function (tooltipItems, data) {
+          var yLabel = Number(tooltipItems.yLabel).toFixed(3) + ' bill EUR';
+          return yLabel;
+        },
+        title: function (tooltipItems, data) {
+          var xLabel = tooltipItems[0].xLabel.slice(0, 4) + tooltipItems[0].xLabel.slice(7, );
+          return xLabel;
+        }
+      }
     }
   }
 });
+console.log(myChart.options);
 
 function updateChart(data, labels) {
   myChart.data.datasets[0].data = data[0];
   myChart.data.datasets[1].data = data[1];
+  myChart.data.datasets[2].data = data[2];
+  myChart.data.datasets[3].data = data[3];
+
 
   myChart.data.labels = labels;
   myChart.update()
@@ -98,9 +137,12 @@ function getChartData(cc, tt) {
       $("#loadingMessage").html("");
       var data = [];
       var json = JSON.parse(result);
-      data.push(Object.values(json.total));
-      data.push(Object.values(json.MA12));
-      var labels = Object.values(json.PERIOD);
+      data.push(Object.values(json.total).map(t => t / 1000000000));
+      data.push(Object.values(json.MA12).map(t => t ? t / 1000000000 : null));
+      data.push(Object.values(json.MOM));
+      data.push(Object.values(json.YOY));
+      var labels = Object.values(json.PERIOD).map(d => moment(d, 'YYYYMM'));
+
 
       updateChart(data, labels);
     },
